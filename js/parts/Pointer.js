@@ -274,7 +274,7 @@ Pointer.prototype = {
 				}
 			});
 		}
-		
+
 		// Just move the tooltip, #349
 		if (allowMove) {
 			if (tooltip && tooltipPoints) {
@@ -695,9 +695,9 @@ Pointer.prototype = {
 			container.ontouchmove = function (e) {
 				pointer.onContainerTouchMove(e);
 			};
-			if (chartCount === 1) {
-				addEvent(doc, 'touchend', pointer.onDocumentTouchEnd);
-			}
+			container.ontouchend = function (e) {
+				pointer.onDocumentTouchEnd(e);
+			};
 		}
 
 	},
@@ -722,5 +722,3 @@ Pointer.prototype = {
 		}
 	}
 };
-
-
