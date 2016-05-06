@@ -236,7 +236,10 @@ extend(Highcharts.Pointer.prototype, {
 		var chart = this.chart;
 		var touchStartEvent = this.touchStartEvent;
 		var insidePlot = chart.isInsidePlot(touchStartEvent.chartX - chart.plotLeft, touchStartEvent.chartY - chart.plotTop);
-		var touchDrag = chart.options.events.touchDrag;
+		var touchDrag = null;
+		if (chart.options.events) {
+			touchDrag = chart.options.events.touchDrag;
+		}
 
 		// started dragging and finished dragging
 		if (insidePlot && this.isTouchDrag && (e.changedTouches.length === 1) && touchDrag) {
