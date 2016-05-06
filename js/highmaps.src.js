@@ -10575,11 +10575,10 @@
             var chart = this.chart;
             var touchStartEvent = this.touchStartEvent;
             var insidePlot = chart.isInsidePlot(touchStartEvent.chartX - chart.plotLeft, touchStartEvent.chartY - chart.plotTop);
-            var touchDrag = chart.options.events.touchDrag;
 
             // started dragging and finished dragging
-            if (insidePlot && this.isTouchDrag && (e.changedTouches.length === 1) && touchDrag) {
-                touchDrag(touchStartEvent, this.touchEndEvent);
+            if (insidePlot && this.isTouchDrag && (e.changedTouches.length === 1)) {
+                Highcharts.fireEvent(chart, 'touchDrag', { start: touchStartEvent, end: this.touchEndEvent });
             }
 
             if (charts[hoverChartIndex]) {
