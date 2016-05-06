@@ -2,7 +2,7 @@
 // @compilation_level SIMPLE_OPTIMIZATIONS
 
 /**
- * @license Highstock JS v4.2.4-modified (2016-05-04)
+ * @license Highstock JS v4.2.4-modified (2016-05-06)
  *
  * (c) 2009-2016 Torstein Honsi
  *
@@ -10368,7 +10368,7 @@
                     }
                 });
             }
-        
+
             // Just move the tooltip, #349
             if (allowMove) {
                 if (tooltip && tooltipPoints) {
@@ -10789,9 +10789,9 @@
                 container.ontouchmove = function (e) {
                     pointer.onContainerTouchMove(e);
                 };
-                if (chartCount === 1) {
-                    addEvent(doc, 'touchend', pointer.onDocumentTouchEnd);
-                }
+                container.ontouchend = function (e) {
+                    pointer.onDocumentTouchEnd(e);
+                };
             }
 
         },
@@ -10816,10 +10816,12 @@
             }
         }
     };
-
-
     /* Support for touch devices */
     extend(Highcharts.Pointer.prototype, {
+        touchStartEvent: null,
+        touchEndEvent: null,
+        touchMoveEvent: null,
+        isTouchDrag: false,
 
         /**
          * Run translation operations
@@ -11034,7 +11036,8 @@
                     }
 
                     if (pick(hasMoved, true)) {
-                        this.pinch(e);
+                        // handle the single finger drag ourselves
+                        // this.pinch(e);
                     }
 
                 } else if (start) {
@@ -11047,18 +11050,36 @@
             }
         },
 
+        touchEnd: function (e) {
+            var chart = this.chart;
+            var touchStartEvent = this.touchStartEvent;
+            var insidePlot = chart.isInsidePlot(touchStartEvent.chartX - chart.plotLeft, touchStartEvent.chartY - chart.plotTop);
+            var touchDrag = chart.options.events.touchDrag;
+
+            // started dragging and finished dragging
+            if (insidePlot && this.isTouchDrag && (e.changedTouches.length === 1) && touchDrag) {
+                touchDrag(touchStartEvent, this.touchEndEvent);
+            }
+
+            if (charts[hoverChartIndex]) {
+                charts[hoverChartIndex].pointer.drop(e);
+            }
+        },
+
         onContainerTouchStart: function (e) {
+            this.isTouchDrag = (e.touches.length === 1);
+            this.touchStartEvent = e;
             this.touch(e, true);
         },
 
         onContainerTouchMove: function (e) {
+            this.touchMoveEvent = e;
             this.touch(e);
         },
 
         onDocumentTouchEnd: function (e) {
-            if (charts[hoverChartIndex]) {
-                charts[hoverChartIndex].pointer.drop(e);
-            }
+            this.touchEndEvent = e;
+            this.touchEnd(e);
         }
 
     });
@@ -20279,7 +20300,7 @@
      * End ordinal axis logic                                                   *
      *****************************************************************************/
     /**
-     * Highstock JS v4.2.4-modified (2016-05-04)
+     * Highstock JS v4.2.4-modified (2016-05-06)
      * Highcharts Broken Axis module
      * 
      * License: www.highcharts.com/license
